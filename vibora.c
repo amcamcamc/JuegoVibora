@@ -3,47 +3,22 @@
 #include <string.h>
 #include <ncurses.h>
 
-#define TECLA_ESC 27
-#define TECLA_Q 113
+#include "vibora.h"
 
-#define TECLA_ARRIBA 259 //sin utilizar
-#define TECLA_ABAJO 258 //sin utilizar
-#define TECLA_IZQUIERDA 260
-#define TECLA_DERECHA 261
-
-#define TECLA_W 119 //sin utilizar
-#define TECLA_A 97
-#define TECLA_S 115 //sin utilizar
-#define TECLA_D 100
-
-enum Direccion { arriba, abajo, izquierda, derecha };
-
-typedef struct Punto
+Elemento *crearElemento(int x, int y, Elemento *sig)
 {
-	int x;
-	int y;
-	char* dibujo;
-	struct Punto* sig;
-} Punto;
-
-// crea punto en la vibora. se utiliza para actualizar la nueva
-// posicion de la cabeza
-Punto *crearPunto(int x, int y, Punto *sig)
-{
-    Punto *nuevoPunto = malloc(sizeof *nuevoPunto);
-    if (nuevoPunto == NULL) { return NULL; }
-    nuevoPunto->x = x;
-    nuevoPunto->y = y;
-    nuevoPunto->sig = sig;
-    return nuevoPunto;
+    Elemento *elementoNuevo = malloc(sizeof *elementoNuevo);
+    if (elementoNuevo == NULL) { return NULL; }
+    elementoNuevo->x = x;
+    elementoNuevo->y = y;
+    elementoNuevo->sig = sig;
+    return elementoNuevo;
 }
 
-// elimina el ultimo punto de la vibora, se utiliza para eliminar
-// los puntos rezagados de la vibora cuando se mueve
-void eliminarUltimoPunto(Punto *cabeza)
+void eliminarUltimoElemento(Elemento *cabeza)
 {
     if (cabeza == NULL) { return; }
-    Punto **actual = &cabeza;
+    Elemento **actual = &cabeza;
     while ((*actual)->sig != NULL)
     {
 		actual = &(*actual)->sig;
@@ -52,20 +27,23 @@ void eliminarUltimoPunto(Punto *cabeza)
     free(*actual);
 }
 
-Punto *cabezaVibora = NULL; // la cabeza de la lista ligada vibora
-
-enum Direccion direccionActual = arriba;
-
-int juegoActivo = 1; //1 para continuar jugando y 0 para salir
-int velocidad = 50000; //velocidad en microsegundos de refrescamiento
-int longitudVibora = 1; //longitud de vibora inicial, 1 por la cabeza
-int longitudViboraMaxima = 7; //longitud maxima de la vibora
-
-int maxX = 0; //ncurses maximo tamano X de terminal
-int maxY = 0; //ncurses maximo tamano Y de terminal
+Vibora *crearVibora(char nombre[32], int color, int posX, int posY)
+{
+	Vibora *viboraNueva = malloc(sizeof *viboraNueva);
+	if (viboraNueva == NULL) { return NULL; }
+	//viboraNueva->nombre = nombre;
+	viboraNueva->color = color;
+	viboraNueva->longitud = 1;
+	viboraNueva->longitudMax = 1;
+	viboraNueva->puntuacion = 0;
+	viboraNueva->direccion = derecha;
+	viboraNueva->cabeza = crearElemento(posX, posY, NULL);
+	if (viboraNueva->cabeza == NULL) { return NULL; }
+	return viboraNueva;
+}
 
 // redirecciona la vibora hacia la izquierda en direccion relativa
-enum Direccion redireccionarIzquierda()
+enum Direccion redireccionarIzquierda(enum Direccion direccionActual)
 {
 	enum Direccion nuevaDireccion;
 	
@@ -78,7 +56,7 @@ enum Direccion redireccionarIzquierda()
 }
 
 // redirecciona la vibora hacia la derecha en direccion relativa
-enum Direccion redireccionarDerecha()
+enum Direccion redireccionarDerecha(enum Direccion direccionActual)
 {
 	enum Direccion nuevaDireccion;
 	
@@ -91,13 +69,13 @@ enum Direccion redireccionarDerecha()
 }
 
 // dibuja la vibora en pantalla
-void dibujarVibora()
+void dibujarVibora(Vibora *vibora)
 {
 	// imprimir la vibora y su cola
-	mvprintw(cabezaVibora->y,cabezaVibora->x, cabezaVibora->dibujo);
+	mvprintw(vibora->cabeza->y,vibora->cabeza->x, vibora->cabeza->dibujo);
 	
-	Punto *cola;
-	cola = cabezaVibora->sig;
+	Elemento *cola;
+	cola = vibora->cabeza->sig;
 	
 	while (cola->sig != NULL)
 	{
@@ -108,59 +86,59 @@ void dibujarVibora()
 }
 
 // mueve la vibora de posicion
-void moverVibora()
+void moverVibora(Vibora *vibora, int limiteX, int limiteY)
 {
 	// mover la vibora respecto a su direccion
-	if (direccionActual == arriba) 
+	if (vibora->direccion == arriba) 
 	{
-		cabezaVibora = crearPunto(cabezaVibora->x,
-								  cabezaVibora->y-1, 
-								  cabezaVibora);
-		longitudVibora++;
-		cabezaVibora->dibujo = "V";
+		vibora->cabeza = crearElemento(vibora->cabeza->x,
+									   vibora->cabeza->y-1, 
+								       vibora->cabeza);
+		vibora->longitud = vibora->longitud+1;
+		vibora->cabeza->dibujo = "V";
 	}
-	else if (direccionActual == abajo) 
+	else if (vibora->direccion == abajo) 
 	{
-		cabezaVibora = crearPunto(cabezaVibora->x,
-								  cabezaVibora->y+1, 
-								  cabezaVibora);
-		longitudVibora++;
-		cabezaVibora->dibujo = "A";
+		vibora->cabeza = crearElemento(vibora->cabeza->x,
+									   vibora->cabeza->y+1, 
+								       vibora->cabeza);
+		vibora->longitud = vibora->longitud+1;
+		vibora->cabeza->dibujo = "A";
 	}
-	else if (direccionActual == izquierda) 
+	else if (vibora->direccion == izquierda) 
 	{
-		cabezaVibora = crearPunto(cabezaVibora->x-1,
-								  cabezaVibora->y, 
-								  cabezaVibora);
-		longitudVibora++;
-		cabezaVibora->dibujo = ">";
+		vibora->cabeza = crearElemento(vibora->cabeza->x-1,
+									   vibora->cabeza->y, 
+									   vibora->cabeza);
+		vibora->longitud = vibora->longitud+1;
+		vibora->cabeza->dibujo = ">";
 	}
-	else if (direccionActual == derecha) 
+	else if (vibora->direccion == derecha) 
 	{
-		cabezaVibora = crearPunto(cabezaVibora->x+1,
-								  cabezaVibora->y, 
-								  cabezaVibora);
-		longitudVibora++;
-		cabezaVibora->dibujo = "<";
+		vibora->cabeza = crearElemento(vibora->cabeza->x+1,
+									   vibora->cabeza->y, 
+									   vibora->cabeza);
+		vibora->longitud = vibora->longitud+1;
+		vibora->cabeza->dibujo = "<";
 	}
 	
 	// eliminar el ultimo punto de la cola por longitud maxima
-	if (longitudVibora-1 > longitudViboraMaxima)
+	if (vibora->longitud-1 > vibora->longitudMax)
 	{
-		eliminarUltimoPunto(cabezaVibora);
-		longitudVibora--;
+		eliminarUltimoElemento(vibora->cabeza);
+		vibora->longitud = vibora->longitud - 1;
 	}
 	
 	// mover la vibora al otro extremo en caso de salir del margen
-	if (cabezaVibora->x > maxX) { cabezaVibora->x = 0; }
-	if (cabezaVibora->x < 0) { cabezaVibora->x = maxX; }
+	if (vibora->cabeza->x > limiteX) { vibora->cabeza->x = 0; }
+	if (vibora->cabeza->x < 0) { vibora->cabeza->x = limiteX; }
 	
-	if (cabezaVibora->y > maxY) { cabezaVibora->y = 0; }
-	if (cabezaVibora->y < 0) { cabezaVibora->y = maxY; }
+	if (vibora->cabeza->y > limiteY) { vibora->cabeza->y = 0; }
+	if (vibora->cabeza->y < 0) { vibora->cabeza->y = limiteY; }
 }
 
 // inicializa el programa y ncurses
-void inicializar()
+/*void inicializar()
 {
 	initscr(); //inicializa la ventana
 	noecho(); //no imprimir teclas presionadas
@@ -174,16 +152,16 @@ void inicializar()
 	
 	direccionActual = redireccionarDerecha();
 	timeout(0);
-}
+}*/
 
 // sale del juego
-void salir()
+/*void salir()
 {
 	juegoActivo = 0;
-}
+}*/
 
 // lee el input del usuario y lo convierte a comandos
-void obtenerInput()
+/*void obtenerInput()
 {
 	int tecla = getch();
 	//printw("%d\n",tecla);
@@ -209,10 +187,10 @@ void obtenerInput()
 			salir();
 			break;
 	}
-}
+}*/
 
 // actualiza la pantalla ncurses
-void actualizarPantalla()
+/*void actualizarPantalla()
 {
 		clear(); //limpia la pantalla
 		
@@ -222,9 +200,9 @@ void actualizarPantalla()
 		refresh(); //actualiza ncurses
 		
 		usleep(velocidad); //retrasa el programa
-}
+}*/
 
-int main()
+/*int main()
 {
 	inicializar(); 
 	
@@ -239,4 +217,4 @@ int main()
 	nocbreak();
 	
 	return 0;
-}
+}*/
