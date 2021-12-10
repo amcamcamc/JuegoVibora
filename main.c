@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <ncurses.h>
 
 #include "controles.h"
@@ -19,12 +20,15 @@ int enJuego = 0;
 void inicializarPrograma()
 {
 	initscr(); //inicializa la ventana
+	start_color();
 	noecho(); //no imprimir teclas presionadas
 	keypad(stdscr, TRUE); //abilita el presionar teclas
 	curs_set(FALSE); //no mostrar cursor
 	cbreak();
 	
 	getmaxyx(stdscr, maxY, maxX); //obtener tamanos maximos terminal
+	maxY = 25;
+	maxX = 80;
 	
 	timeout(0);
 }
@@ -35,7 +39,7 @@ int main()
 	
 	while (enPrograma)
 	{
-		getmaxyx(stdscr, maxY, maxX); //por si la consola cambia tamano
+		//getmaxyx(stdscr, maxY, maxX); //por si la consola cambia tamano
 		
 		while (enMenus == 1)
 		{
@@ -45,7 +49,8 @@ int main()
 		
 		while (enJuego)
 		{
-			enJuego = jugarJuego(1, 50000);
+			enJuego = jugarJuego();
+			if (enJuego == 0) { enMenus = 1; }
 		}
 		
 		if (!enMenus && !enJuego) //si no estamos en los menus ni en el juego

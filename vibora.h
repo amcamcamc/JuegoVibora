@@ -30,7 +30,7 @@ Elemento *crearElemento(int x, int y, Elemento *sig);
 // los puntos rezagados de la vibora cuando se mueve
 void eliminarUltimoElemento(Elemento *cabeza);
 
-Vibora *crearVibora(char nombre[32], int color, int posX, int posY);
+Vibora *crearVibora(char nombre[32], int color, int posX, int posY, enum Direccion direccionInicial);
 
 // redirecciona la vibora hacia la izquierda en direccion relativa
 enum Direccion redireccionarIzquierda(enum Direccion direccionActual);

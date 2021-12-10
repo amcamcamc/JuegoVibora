@@ -73,9 +73,9 @@ void escucharInput_menuPrincipal()
 	if (compararAccionTecla(tecla, ACEPTAR) || compararAccionTecla(tecla, MOVER_DERECHA))
 	{ 
 		if (opcionActual == 0) { menuActual = jugar; }
-		if (opcionActual == 1) { menuActual = jugar; }
-		if (opcionActual == 2) { menuActual = jugar; }
-		if (opcionActual == 3) { seguirMenus = 0; menuActual = salir; }
+		//if (opcionActual == 1) { menuActual = jugar; }
+		//if (opcionActual == 2) { menuActual = jugar; }
+		if (opcionActual == 1) { seguirMenus = 0; menuActual = salir; }
 		menuPrincipal = NULL;
 		menuNiveles = NULL;
 		menuPuntajes = NULL;
@@ -170,7 +170,7 @@ int mostrarMenus()
 	seguirMenus = 1;
 	while (menuActual != salir)
 	{
-		getmaxyx(stdscr, maxY, maxX);
+		//getmaxyx(stdscr, maxY, maxX);
 		if (menuActual == principal)
 		{
 			mostrarMenuPrincipal();

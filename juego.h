@@ -10,8 +10,8 @@ extern int nivel; //el nivel seleccionado
 extern int maxX; //maximo tamano X de terminal
 extern int maxY; //maximo tamano Y de terminal
 
-void inicializarJuego();
+void inicializarJuego(char* nivelSeleccionado, int velocidadSeleccionada);
 void actualizarJuego();
-int jugarJuego(int nivelSeleccionado, int velocidadSeleccionada);
+int jugarJuego();
 
 #endif
