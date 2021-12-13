@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <ncurses.h>
 
@@ -19,6 +20,8 @@ int enJuego = 0;
 // inicializa el programa y ncurses
 void inicializarPrograma()
 {
+	srand((unsigned) time(NULL));
+	
 	initscr(); //inicializa la ventana
 	start_color();
 	noecho(); //no imprimir teclas presionadas

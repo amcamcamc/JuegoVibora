@@ -15,6 +15,9 @@ typedef struct Escenario
 	ElementoEscenario **elementos;
 } Escenario;
 
+//Detecta si las coordenadas pasadas chocarian con algun elemento del escenario
+int detectarColision_Escenario(int posX, int posY, Escenario *escenario);
+
 //Inicializa la estructura apuntada por el apuntador escenario
 void initEscenario(Escenario *escenario);
 

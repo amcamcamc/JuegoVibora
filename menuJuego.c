@@ -105,9 +105,9 @@ void escucharInput_menuNiveles()
 	}
 	if (compararAccionTecla(tecla, ACEPTAR) || compararAccionTecla(tecla, MOVER_DERECHA))
 	{ 
-		if (opcionActual == 0) { seguirMenus = 0; juegoActivo = 1; menuActual = salir; }
-		if (opcionActual == 1) { seguirMenus = 0; juegoActivo = 1; menuActual = salir; }
-		if (opcionActual == 2) { seguirMenus = 0; juegoActivo = 1; menuActual = salir; }
+		if (opcionActual == 0) { seguirMenus = 0; nivel = 1; juegoActivo = 1; menuActual = salir; }
+		if (opcionActual == 1) { seguirMenus = 0; nivel = 2; juegoActivo = 1; menuActual = salir; }
+		if (opcionActual == 2) { seguirMenus = 0; nivel = 3; juegoActivo = 1; menuActual = salir; }
 		if (opcionActual == 3) { menuActual = principal; }
 		menuPrincipal = NULL;
 		menuNiveles = NULL;
@@ -134,7 +134,22 @@ void mostrarMenuPrincipal()
 		menuPrincipal = newwin(maxY/2,maxX/2, maxY/4, maxX/4);
 		box(menuPrincipal, 0,0);
 	
-		mvwprintw(menuPrincipal, 0, maxX/8, "MENU PRINCIPAL");
+		if (finDelJuego == 1) //Si ha ganado el jugador
+		{
+			mvwprintw(menuPrincipal, 0, maxX/8, "FIN: GANASTE!");
+		}
+		else if (finDelJuego == 2) //Si ha ganado la computadora
+		{
+			mvwprintw(menuPrincipal, 0, maxX/8, "FIN: TE HAS ESTRELLADO!");
+		}
+		else if (finDelJuego == 0) //Si se han estrellado el jugador y la computadora
+		{
+			mvwprintw(menuPrincipal, 0, maxX/8, "FIN: EMPATE!");
+		}
+		else
+		{
+			mvwprintw(menuPrincipal, 0, maxX/8, "MENU PRINCIPAL");
+		}
 	}
 	renderizarOpciones(menuPrincipal, opciones_menuPrincipal);
 	

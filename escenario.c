@@ -25,6 +25,22 @@ char *strtok_r(char *str, const char *delim, char **save)
 	return res;
 }
 
+//Detecta si las coordenadas pasadas chocarian con algun elemento del mapa
+int detectarColision_Escenario(int posX, int posY, Escenario *escenario)
+{
+	for (int i = 0; i < escenario->filas; i++)
+	{
+		for (int j = 0; j < escenario->columnas; j++)
+		{
+			if (posX == j && posY == i)
+			{
+				if (escenario->elementos[i][j].peso == '0') { return 1; }
+			}
+		}
+	}
+	return 0;
+}
+
 //Inicializa la estructura apuntada por el apuntador escenario
 void initEscenario(Escenario *escenario)
 {

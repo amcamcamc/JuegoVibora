@@ -18,30 +18,37 @@ typedef struct Vibora
 	int longitud;
 	int longitudMax;
 	int puntuacion;
+	int viva;
 	enum Direccion direccion;
 	Elemento* cabeza;
 } Vibora;
 
-// crea un elemento. en contexto de las viboras, se utiliza para 
+// Crea un elemento. en contexto de las viboras, se utiliza para 
 // mover la cabeza de la vibora
 Elemento *crearElemento(int x, int y, Elemento *sig);
 
-// elimina el ultimo punto de la vibora, se utiliza para eliminar
+// Elimina el ultimo punto de la vibora, se utiliza para eliminar
 // los puntos rezagados de la vibora cuando se mueve
 void eliminarUltimoElemento(Elemento *cabeza);
 
 Vibora *crearVibora(char nombre[32], int color, int posX, int posY, enum Direccion direccionInicial);
 
-// redirecciona la vibora hacia la izquierda en direccion relativa
+// Redirecciona la vibora hacia la izquierda en direccion relativa
 enum Direccion redireccionarIzquierda(enum Direccion direccionActual);
 
-// redirecciona la vibora hacia la derecha en direccion relativa
+// Redirecciona la vibora hacia la derecha en direccion relativa
 enum Direccion redireccionarDerecha(enum Direccion direccionActual);
 
-// dibuja la vibora en pantalla
+// Dibuja la vibora en pantalla
 void dibujarVibora(Vibora *vibora);
 
-// mueve la vibora de posicion
+// Mueve la vibora de posicion
 void moverVibora(Vibora *vibora, int limiteX, int limiteY);
+
+// Detecta si la cabeza de la vibora chocaria con algun elemento de la vibora obstaculo
+int detectarColision_Vibora(Elemento *cabezaDetectora, Elemento *cabezaObstaculo, int misma);
+
+// Detecta si la cabeza de la vibora se come una manzana
+int detectarColision_Manzana(Elemento *cabezaDetectora, Elemento *manzanaObj);
 
 #endif

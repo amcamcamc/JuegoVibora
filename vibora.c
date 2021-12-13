@@ -34,8 +34,9 @@ Vibora *crearVibora(char nombre[32], int color, int posX, int posY, enum Direcci
 	//viboraNueva->nombre = nombre;
 	viboraNueva->color = color;
 	viboraNueva->longitud = 1;
-	viboraNueva->longitudMax = 7;
+	viboraNueva->longitudMax = 3;
 	viboraNueva->puntuacion = 0;
+	viboraNueva->viva = 1;
 	viboraNueva->direccion = direccionInicial;
 	viboraNueva->cabeza = crearElemento(posX, posY, NULL);
 	if (viboraNueva->cabeza == NULL) { return NULL; }
@@ -79,7 +80,8 @@ void dibujarVibora(Vibora *vibora)
 	
 	while (cola->sig != NULL)
 	{
-		mvprintw(cola->y,cola->x, "o");
+		if (strcmp(cola->dibujo, "O") == 0) { mvprintw(cola->y,cola->x, "@"); }
+		else { mvprintw(cola->y,cola->x, "o"); }
 		cola = cola->sig;
 	}
 	mvprintw(cola->y,cola->x, ".");
@@ -137,4 +139,37 @@ void moverVibora(Vibora *vibora, int limiteX, int limiteY)
 	
 	if (vibora->cabeza->y >= limiteY) { vibora->cabeza->y = 0; }
 	if (vibora->cabeza->y < 0) { vibora->cabeza->y = limiteY-1; }
+}
+
+int detectarColision_Vibora(Elemento *cabezaDetectora, Elemento *cabezaObstaculo, int misma)
+{
+	//Detectar colision mutua solo si no es la misma vibora
+	if (misma == 0)
+	{
+		if (cabezaDetectora->x == cabezaObstaculo->x && cabezaDetectora->y == cabezaObstaculo->y)
+		{ return 2; }
+	}
+
+    Elemento **actual = &cabezaObstaculo;
+    
+    //Si estamos comparando con la misma vibora, no queremos contar la cabeza
+    if (misma && (*actual)->sig != NULL) { actual = &(*actual)->sig; }
+    
+    while ((*actual)->sig != NULL)
+    {
+		if ((*actual)->x == cabezaDetectora->x && (*actual)->y == cabezaDetectora->y)
+		{
+			return 1; //La cabeza detectora choca con la cabeza obstaculo
+		}
+		actual = &(*actual)->sig;
+	}
+	return 0; //Sin colision
+}
+
+int detectarColision_Manzana(Elemento *cabezaDetectora, Elemento *manzanaObj)
+{
+	//Detectar colision mutua
+	if (cabezaDetectora->x == manzanaObj->x && cabezaDetectora->y == manzanaObj->y)
+	{ return 1; }
+	return 0;
 }
