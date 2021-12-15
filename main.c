@@ -13,9 +13,9 @@
 #define SALIDA_EXITOSA 0 //El programa sale de manera exitosa
 #define SALIDA_ERROR 1 //El programa salio por un error
 
-int enPrograma = 1;
-int enMenus = 1;
-int enJuego = 0;
+int enPrograma = 1;	//El usuario se encuentra dentro del programa
+int enMenus = 1; //El usuario se encuentra dentro de los menus
+int enJuego = 0; //El usuario se encuentra dentro del juego
 
 // inicializa el programa y ncurses
 void inicializarPrograma()
@@ -23,13 +23,17 @@ void inicializarPrograma()
 	srand((unsigned) time(NULL));
 	
 	initscr(); //inicializa la ventana
-	start_color();
+	start_color(); //empieza a utilizar color
 	noecho(); //no imprimir teclas presionadas
 	keypad(stdscr, TRUE); //abilita el presionar teclas
 	curs_set(FALSE); //no mostrar cursor
 	cbreak();
 	
 	getmaxyx(stdscr, maxY, maxX); //obtener tamanos maximos terminal
+	
+	//estas son las resoluciones por defecto para que funcione el juego
+	//ya que se necesitaria hacer otros cambios para que el juego
+	//se adapte a la resolucion
 	maxY = 25;
 	maxX = 80;
 	
@@ -47,13 +51,13 @@ int main()
 		while (enMenus == 1)
 		{
 			enMenus = mostrarMenus();
-			if (enMenus == 0) { if (juegoActivo) { enJuego = 1; } }
+			if (enMenus == 0) { if (juegoActivo) { enJuego = 1; } } //si salimos de los menus y estamos en el juego
 		}
 		
 		while (enJuego)
 		{
 			enJuego = jugarJuego();
-			if (enJuego == 0) { enMenus = 1; }
+			if (enJuego == 0) { enMenus = 1; } //si salimos del juego entonces entramos automaticamente a los menus
 		}
 		
 		if (!enMenus && !enJuego) //si no estamos en los menus ni en el juego

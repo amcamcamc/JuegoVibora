@@ -49,6 +49,9 @@ int ACEPTAR[1] =
 	TECLA_ENTER,
 };
 
+//Compara la tecla presionada con el arreglo de teclas de una 
+//accion predeterminada y devuelve 1 o 0 dependiendo si la tecla
+//es parte de la accion
 int compararAccionTecla(int teclaPresionada, int accion[])
 {
 	int tamanoAcciones = sizeof accion / sizeof accion[0];

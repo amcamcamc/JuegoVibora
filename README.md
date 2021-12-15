@@ -1,5 +1,10 @@
 # Juego Vibora
-El juego clasico de la vibora con nuevas funcionalidades
+El juego clasico de la vibora creado con ncurses
+Algunas de las funcionalidades incluyen:
+- Colores
+- Diferentes niveles (Se pueden modificar o agregar mas)
+- Bordes del mapa adyacentes entre si estilo Pacman
+- Vibora rival controlada por la computadora
 ---
 ### Controles
 Moverse arriba en los menus:
@@ -12,12 +17,10 @@ Moverse abajo en los menus:
 
 Aceptar en los menus:
 - Enter
-- Flecha derecha 
 
-Regresar menu anterior:
+Regresar menu anterior o salir del juego:
 - Esc
 - Q
-- Flecha izquierda  
 
 Mover vibora hacia la izquierda:
 - Flecha izquierda

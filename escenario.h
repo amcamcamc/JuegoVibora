@@ -5,7 +5,6 @@ typedef struct ElementoEscenario
 {
 	char id[8];
 	char peso;
-	char caminos;
 } ElementoEscenario;
 
 typedef struct Escenario

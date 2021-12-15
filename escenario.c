@@ -25,7 +25,7 @@ char *strtok_r(char *str, const char *delim, char **save)
 	return res;
 }
 
-//Detecta si las coordenadas pasadas chocarian con algun elemento del mapa
+//Detecta si las coordenadas pasadas chocarian con algun elemento del escenario
 int detectarColision_Escenario(int posX, int posY, Escenario *escenario)
 {
 	for (int i = 0; i < escenario->filas; i++)
@@ -59,7 +59,6 @@ void definirEscenario(Escenario *escenario, int f, int c)
 	
 	for (int i = 0; i < f; i++)
 	{
-		//printf("renglon: %d\n", i);
 		elementosEsc[i] = (ElementoEscenario *) malloc(c*sizeof(ElementoEscenario));
 	}
 	
@@ -70,7 +69,6 @@ void definirEscenario(Escenario *escenario, int f, int c)
 //apuntada por el apuntador escenario
 int cargarEscenario(Escenario *escenario, char *nombreNivel)
 {
-	//printf("\n\ncargaPantalla\n\n");
 	FILE *arch;
 	size_t f, c;
 	char buff[512], *ptr, *tmp;
@@ -81,8 +79,6 @@ int cargarEscenario(Escenario *escenario, char *nombreNivel)
 	
 	//Leemos la primera linea del archivo, la que contiene las dimensiones
 	//de la pantalla definida en el archivo y extrae las dimensiones.
-	//
-	//Aquí ocupamos una funcion que no hemos visto aun, strtok_r, pero la explicaremos despues.
 	fgets(buff, 512, arch);
 	ptr = strtok_r(buff, " \n", &tmp);
 	c = (size_t)atol(ptr);
@@ -91,39 +87,28 @@ int cargarEscenario(Escenario *escenario, char *nombreNivel)
 	
 	definirEscenario(escenario, f, c);
 	
-	// Leer cada una de las f lineas de archivo
-	// y a partir de cada uno de los 2*c caracteres del renglon, inicializar cada
-	// uno del los elementos del renglon correspondiente de la pantalla apuntada 
-	// por escenario.
+	/* Leer cada una de las f lineas de archivo
+	 * y a partir de cada uno de los 2*c caracteres del renglon, inicializar cada
+	 * uno del los elementos del renglon correspondiente de la pantalla apuntada 
+	 * por escenario.
+	 */
 	
-	char leido; 			//el caracter actualmente leido del archivo
-	int posicionChar = 0;	//0 para tipo, 1 para color
-	int escrito = 0;		//si ya se escribio ya sea tipo o color en esta vuelta
-	int filActual = 0;		//fila actual
-	int colActual = 0;		//columna actual
+	char leido; //El caracter actualmente leido del archivo
+	int filActual = 0; //Fila actual
+	int colActual = 0; //Columna actual
 	
 	//Leer linea por linea el archivo
-	//Sabiendo que se comienza primero por el tipo, entonces asignamos
-	//el tipo y despues ponemos una variable para saber que ya lo asignamos
-	//ya que necesitamos pasar de nuevo por el while para cambiar de caracter
-	//en el archivo. Cuando se hayan leido tipo y color, entonces aumentar
-	//el contador de columna para pasar al siguiente elemento de pantalla.
 	while((leido = fgetc(arch)) != EOF && !(filActual > escenario->filas))
 	{
-		//printf("Renglon: %d | Columna: %d\n", renActual,colActual);
-		
 		if (colActual >= escenario->columnas)
 		{
-			//printf("%d = %d\n", colActual, pnt->col);
 			filActual++;
 			colActual = 0;
 		}
 		else
 		{
-			//printf("Valor en pantalla: %c\n",leido);
 			escenario->elementos[filActual][colActual].peso = leido;
 			colActual++;
-			//printf("Valor escrito: %c \n",pnt->P[renActual][colActual].Tipo);
 		}
 	}
 	
@@ -134,8 +119,6 @@ int cargarEscenario(Escenario *escenario, char *nombreNivel)
 //Libera la memoria asociada a la estructura apuntada por escenario
 void liberaEscenario(Escenario *escenario)
 {
-	//printf("\n\nliberaPantalla\n\n");
-	
 	if (escenario->elementos != NULL) { free(escenario->elementos); }
 	escenario->elementos = NULL;
 }

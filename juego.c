@@ -20,15 +20,16 @@ Vibora *viboraComputadora;
 Elemento *manzana;
 
 //Configuracion del juego
-int juegoActivo = 0;
-int juegoVelocidad = 100000;
-int nivel = 0;
-int finDelJuego = -1;
+int juegoActivo = 0; //1 para continuar jugando y 0 para salir
+int juegoVelocidad = 100000; //tiempo en microsegundos entre actualizaciones de pantalla
+int nivel = 0; //el nivel seleccionado
+int finDelJuego = -1; //se utiliza para saber el ganador del juego. 1 para el usuario, 2 para la computadora, 0 es empate
 
 //Datos ncurses
 int maxX = 0;
 int maxY = 0;
 
+//Escucha el input del jugador y lo traduce a comandos para el juego
 void escucharInput_jugador()
 {
 	int tecla = getch();
@@ -41,6 +42,7 @@ void escucharInput_jugador()
 	{ juegoActivo = 0; }
 }
 
+//Aparece una manzana en el mapa con las posiciones indicadas
 void aparecerManzana(Elemento *manzanaNueva, int posX, int posY)
 {
 	manzanaNueva->x = posX;
@@ -48,6 +50,8 @@ void aparecerManzana(Elemento *manzanaNueva, int posX, int posY)
     manzanaNueva->dibujo = "a";
 }
 
+//Mueve la manzana actual de lugar y la cambia a una posicion al azar
+//Util para cuando una vibora se la come
 void moverManzana(Elemento *manzanaActual)
 {
 	//Localizar coordenadas que no esten bloqueadas por viboras o 
@@ -78,12 +82,14 @@ void moverManzana(Elemento *manzanaActual)
 	}
 }
 
+//Dibujar la manzana en el escenario
 void dibujarManzana(Elemento *manzanaObj)
 {
 	attron(COLOR_PAIR(7));
 	mvprintw(manzanaObj->y, manzanaObj->x, manzanaObj->dibujo);
 }
 
+//Come la manzana pasada especificando cual vibora se la comio
 void comerManzana(Elemento *manzanaObj, Vibora *viboraComedora)
 {
 	viboraComedora->longitudMax = viboraComedora->longitudMax+1;
@@ -93,6 +99,7 @@ void comerManzana(Elemento *manzanaObj, Vibora *viboraComedora)
 	moverManzana(manzanaObj);
 }
 
+//Detecta colisiones en el juego y decide si continuar o salir
 void detectarColisiones()
 {
 	int colisionJugador_Manzana = detectarColision_Manzana(viboraJugador->cabeza, manzana);
@@ -190,6 +197,7 @@ void detectarColisiones()
 	}
 }
 
+//Actualiza la posicion de las viboras y las dibuja
 void actualizarViboras()
 {
 	for (int i = 0; i < 2; i++)
@@ -198,34 +206,20 @@ void actualizarViboras()
 		{
 			moverVibora(listaViboras[i], maxX, maxY);
 		}
-		attron(COLOR_PAIR(i+1));
+		attron(COLOR_PAIR(listaViboras[i]->color));
 		dibujarVibora(listaViboras[i]);
 	}
 }
 
+//Muestra informacion del juego que solo es visible cuando la terminal esta en pantalla completa
 void mostrarInfoJuego()
 {
-	mvprintw(26,1,"[Jugador] cabeza: (x:%d,y:%d) | long: %d | puntos: %d | dir: %d",
-			 viboraJugador->cabeza->x,
-			 viboraJugador->cabeza->y,
-			 viboraJugador->longitud,
-			 viboraJugador->puntuacion,
-			 viboraJugador->direccion
-			);
-	mvprintw(27,1,"[Computadora] cabeza: (x:%d,y:%d) | long: %d | puntos: %d | dir: %d",
-			 viboraComputadora->cabeza->x,
-			 viboraComputadora->cabeza->y,
-			 viboraComputadora->longitud,
-			 viboraComputadora->puntuacion,
-			 viboraComputadora->direccion
-			);
-	mvprintw(28,1,"Manzana: (x:%d,y:%d)",manzana->x,manzana->y);
-	if (viboraJugador->longitud >= 7)
-	{
-		mvprintw(29,1,"ColisionJJ: %d", detectarColision_Vibora(viboraJugador->cabeza, viboraJugador->cabeza,1));
-	}
+	mvprintw(26,1,"[Jugador] %d puntos",viboraJugador->puntuacion);
+	mvprintw(27,1,"[Computadora] %d puntos",viboraComputadora->puntuacion);
+	//vprintw(28,1,"Manzana: (x:%d,y:%d)",manzana->x,manzana->y);
 }
 
+//Los comandos a correr cuando se carga el juego
 void inicializarJuego()
 {
 	char* nivelSeleccionado;
@@ -244,8 +238,8 @@ void inicializarJuego()
 	initEscenario(&escenarioActual);
 	cargarEscenario(&escenarioActual, nivelSeleccionado);
 	
-	viboraJugador = crearVibora(NULL, 1, (maxX/2)+5, maxY/2, arriba);
-	viboraComputadora = crearVibora(NULL, 1, (maxX/2)-5, maxY/2, abajo);
+	viboraJugador = crearVibora(1, (maxX/2)+5, maxY/2, arriba);
+	viboraComputadora = crearVibora(2, (maxX/2)-5, maxY/2, abajo);
 	
 	if (viboraJugador != NULL)
 	{
@@ -259,37 +253,50 @@ void inicializarJuego()
 	finDelJuego = -1;
 }
 
+//Funcion que manda a llamar a la vibora de la computadora para que se mueva
 void controlarRival()
 {
 	analizarJuego(viboraComputadora, viboraJugador, manzana, &escenarioActual);
 }
 
+//Actualiza el juego por cada cuadro
 void actualizarJuego()
 {
 	//getmaxyx(stdscr, maxY, maxX);
 	
 	clear(); //limpia la pantalla
 	
+	
+	//Es importante que las funciones esten en este orden especifico
+	
 	imprimirEscenario(&escenarioActual, maxX, maxY);
+	
 	dibujarManzana(manzana);
+	
 	detectarColisiones();
+	
 	actualizarViboras();
+	
 	controlarRival();
+	
 	escucharInput_jugador();
 	
 	mostrarInfoJuego();
 		
+	
 	refresh(); //actualiza ncurses
 		
 	usleep(juegoVelocidad); //retrasa el programa
 }
 
+//Termina el juego indicando el ganador
 void terminarJuego(int ganador)
 {
 	finDelJuego = ganador;
 	juegoActivo = 0;
 }
 
+//Manda a inicializar el juego y lo actualiza hasta que acabe o el usuario salga
 int jugarJuego()
 {
 	inicializarJuego();

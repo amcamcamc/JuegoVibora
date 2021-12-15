@@ -5,6 +5,8 @@
 
 #include "vibora.h"
 
+//Crea un elemento. en contexto de las viboras, se utiliza para 
+//mover la cabeza de la vibora
 Elemento *crearElemento(int x, int y, Elemento *sig)
 {
     Elemento *elementoNuevo = malloc(sizeof *elementoNuevo);
@@ -15,6 +17,8 @@ Elemento *crearElemento(int x, int y, Elemento *sig)
     return elementoNuevo;
 }
 
+//Elimina el ultimo punto de la vibora, se utiliza para eliminar
+//los puntos rezagados de la vibora cuando se mueve
 void eliminarUltimoElemento(Elemento *cabeza)
 {
     if (cabeza == NULL) { return; }
@@ -27,11 +31,11 @@ void eliminarUltimoElemento(Elemento *cabeza)
     free(*actual);
 }
 
-Vibora *crearVibora(char nombre[32], int color, int posX, int posY, enum Direccion direccionInicial)
+//Inicializa un objeto vibora
+Vibora *crearVibora(int color, int posX, int posY, enum Direccion direccionInicial)
 {
 	Vibora *viboraNueva = malloc(sizeof *viboraNueva);
 	if (viboraNueva == NULL) { return NULL; }
-	//viboraNueva->nombre = nombre;
 	viboraNueva->color = color;
 	viboraNueva->longitud = 1;
 	viboraNueva->longitudMax = 3;
@@ -43,7 +47,7 @@ Vibora *crearVibora(char nombre[32], int color, int posX, int posY, enum Direcci
 	return viboraNueva;
 }
 
-// redirecciona la vibora hacia la izquierda en direccion relativa
+//Redirecciona la vibora hacia la izquierda en direccion relativa
 enum Direccion redireccionarIzquierda(enum Direccion direccionActual)
 {
 	enum Direccion nuevaDireccion;
@@ -56,7 +60,7 @@ enum Direccion redireccionarIzquierda(enum Direccion direccionActual)
 	return nuevaDireccion;
 }
 
-// redirecciona la vibora hacia la derecha en direccion relativa
+//Redirecciona la vibora hacia la derecha en direccion relativa
 enum Direccion redireccionarDerecha(enum Direccion direccionActual)
 {
 	enum Direccion nuevaDireccion;
@@ -69,10 +73,10 @@ enum Direccion redireccionarDerecha(enum Direccion direccionActual)
 	return nuevaDireccion;
 }
 
-// dibuja la vibora en pantalla
+//Dibuja la vibora en pantalla
 void dibujarVibora(Vibora *vibora)
 {
-	// imprimir la vibora y su cola
+	//Imprimir la vibora y su cola
 	mvprintw(vibora->cabeza->y,vibora->cabeza->x, vibora->cabeza->dibujo);
 	
 	Elemento *cola;
@@ -87,10 +91,10 @@ void dibujarVibora(Vibora *vibora)
 	mvprintw(cola->y,cola->x, ".");
 }
 
-// mueve la vibora de posicion
+//Mueve la vibora de posicion
 void moverVibora(Vibora *vibora, int limiteX, int limiteY)
 {
-	// mover la vibora respecto a su direccion
+	//Mover la vibora respecto a su direccion
 	if (vibora->direccion == arriba) 
 	{
 		vibora->cabeza = crearElemento(vibora->cabeza->x,
@@ -124,16 +128,14 @@ void moverVibora(Vibora *vibora, int limiteX, int limiteY)
 		vibora->cabeza->dibujo = "<";
 	}
 	
-	//printw("lon: %d max: %d",vibora->longitud, vibora->longitudMax);
-	
-	// eliminar el ultimo punto de la cola por longitud maxima
+	//Eliminar el ultimo punto de la cola por longitud maxima
 	if (vibora->longitud > vibora->longitudMax)
 	{
 		eliminarUltimoElemento(vibora->cabeza);
 		vibora->longitud = vibora->longitud - 1;
 	}
 	
-	// mover la vibora al otro extremo en caso de salir del margen
+	//Mover la vibora al otro extremo en caso de salir del margen
 	if (vibora->cabeza->x >= limiteX) { vibora->cabeza->x = 0; }
 	if (vibora->cabeza->x < 0) { vibora->cabeza->x = limiteX-1; }
 	
@@ -141,6 +143,7 @@ void moverVibora(Vibora *vibora, int limiteX, int limiteY)
 	if (vibora->cabeza->y < 0) { vibora->cabeza->y = limiteY-1; }
 }
 
+//Detecta si la cabeza de la vibora chocaria con algun elemento de la vibora obstaculo
 int detectarColision_Vibora(Elemento *cabezaDetectora, Elemento *cabezaObstaculo, int misma)
 {
 	//Detectar colision mutua solo si no es la misma vibora
@@ -166,9 +169,9 @@ int detectarColision_Vibora(Elemento *cabezaDetectora, Elemento *cabezaObstaculo
 	return 0; //Sin colision
 }
 
+// Detecta si la cabeza de la vibora se come una manzana
 int detectarColision_Manzana(Elemento *cabezaDetectora, Elemento *manzanaObj)
 {
-	//Detectar colision mutua
 	if (cabezaDetectora->x == manzanaObj->x && cabezaDetectora->y == manzanaObj->y)
 	{ return 1; }
 	return 0;

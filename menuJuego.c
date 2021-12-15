@@ -7,13 +7,13 @@
 #include "juego.h"
 #include "menu.h"
 
-enum Menus { principal, jugar, puntajes, ajustes, salir };
+enum Menus { principal, jugar, salir };
 
 enum Menus menuActual = principal;
-int opcionActual = 0; //opcion actual seleccionada en el menu actual
-int numOpciones = 0; //numero de opciones en el menu actual (0 incluyente)
+int opcionActual = 0; //Opcion actual seleccionada en el menu actual
+int numOpciones = 0; //Numero de opciones en el menu actual (0 incluyente)
 
-int seguirMenus = 1; //si se salio de los menus para entrar al juego, poner un 0
+int seguirMenus = 1; //Si se salio de los menus para entrar al juego, poner un 0
 
 WINDOW *menuPrincipal = NULL; 
 WINDOW *menuNiveles = NULL; 
@@ -55,7 +55,6 @@ void renderizarOpciones(WINDOW *menu, char opciones[][32])
 			wattroff(menu, A_STANDOUT);
 		}
 	}
-	//printw("a: %d",opcionActual);
 }
 
 void escucharInput_menuPrincipal()
@@ -70,18 +69,16 @@ void escucharInput_menuPrincipal()
 	{
 		if (opcionActual < numOpciones) { opcionActual++; } 
 	}
-	if (compararAccionTecla(tecla, ACEPTAR) || compararAccionTecla(tecla, MOVER_DERECHA))
+	if (compararAccionTecla(tecla, ACEPTAR))
 	{ 
 		if (opcionActual == 0) { menuActual = jugar; }
-		//if (opcionActual == 1) { menuActual = jugar; }
-		//if (opcionActual == 2) { menuActual = jugar; }
 		if (opcionActual == 1) { seguirMenus = 0; menuActual = salir; }
 		menuPrincipal = NULL;
 		menuNiveles = NULL;
 		menuPuntajes = NULL;
 		menuAjustes = NULL;
 	}
-	if (compararAccionTecla(tecla, REGRESAR) || compararAccionTecla(tecla, MOVER_IZQUIERDA))
+	if (compararAccionTecla(tecla, REGRESAR))
 	{
 		seguirMenus = 0;
 		menuActual = salir;
@@ -103,7 +100,7 @@ void escucharInput_menuNiveles()
 	{
 		if (opcionActual < numOpciones) { opcionActual++; } 
 	}
-	if (compararAccionTecla(tecla, ACEPTAR) || compararAccionTecla(tecla, MOVER_DERECHA))
+	if (compararAccionTecla(tecla, ACEPTAR))
 	{ 
 		if (opcionActual == 0) { seguirMenus = 0; nivel = 1; juegoActivo = 1; menuActual = salir; }
 		if (opcionActual == 1) { seguirMenus = 0; nivel = 2; juegoActivo = 1; menuActual = salir; }
@@ -114,7 +111,7 @@ void escucharInput_menuNiveles()
 		menuPuntajes = NULL;
 		menuAjustes = NULL;
 	}
-	if (compararAccionTecla(tecla, REGRESAR) || compararAccionTecla(tecla, MOVER_IZQUIERDA))
+	if (compararAccionTecla(tecla, REGRESAR))
 	{
 		menuActual = principal;
 		menuPrincipal = NULL;
@@ -124,6 +121,7 @@ void escucharInput_menuNiveles()
 	}
 }
 
+//Muestra el menu principal del juego con todas sus opciones
 void mostrarMenuPrincipal()
 {	
 	if (menuPrincipal == NULL)
@@ -146,7 +144,7 @@ void mostrarMenuPrincipal()
 		{
 			mvwprintw(menuPrincipal, 0, maxX/8, "FIN: EMPATE!");
 		}
-		else
+		else //Si el juego no se ha iniciado todavia
 		{
 			mvwprintw(menuPrincipal, 0, maxX/8, "MENU PRINCIPAL");
 		}
@@ -159,6 +157,7 @@ void mostrarMenuPrincipal()
 	escucharInput_menuPrincipal();
 }
 
+//Muestra el menu de escojer nivel
 void mostrarMenuNiveles()
 {	
 	if (menuNiveles == NULL)
@@ -179,6 +178,7 @@ void mostrarMenuNiveles()
 	escucharInput_menuNiveles();
 }
 
+//Rutina para mostrar menus hasta que se entra en el juego o se sale
 int mostrarMenus()
 {
 	menuActual = principal;
@@ -193,14 +193,6 @@ int mostrarMenus()
 		else if (menuActual == jugar)
 		{
 			mostrarMenuNiveles();
-		}
-		else if (menuActual == puntajes)
-		{
-			
-		}
-		else if (menuActual == ajustes)
-		{
-			
 		}
 	}
 	return seguirMenus;
